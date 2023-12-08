@@ -1,18 +1,19 @@
 console.log("welcome to my todo app");
 
-let todoDataSection = document.getElementById("todo-data");
+let todoDataList = document.getElementById("todo-data-list");
 let saveButton = document.getElementById("save-todo");
 let todoInputBar = document.getElementById("todo-input-bar");
-
+let todos = [];
+// console.log(todoDataList);
 todoInputBar.addEventListener("keyup", function toggleSaveButton() {
   let todoText = todoInputBar.value;
-  console.log(todoText);
+  // console.log(todoText);
   if (todoText.length == 0) {
     if (saveButton.classList.contains("disabled")) return;
     saveButton.classList.add("disabled"); //disabled
-    console.log("aadded disable");
+    // console.log("aadded disable");
   } else if (saveButton.classList.contains("disabled")) {
-    console.log("removed disable");
+    // console.log("removed disable");
     saveButton.classList.remove("disabled");
   }
 });
@@ -20,11 +21,29 @@ todoInputBar.addEventListener("keyup", function toggleSaveButton() {
 saveButton.addEventListener("click", function getTextAndAddTodo() {
   let todoText = todoInputBar.value;
   if (todoText.length == 0) return;
-  addTodo(todoText);
+  todos.push(todoText);
+  // console.log(todos);
+  addTodo(todoText, todos.length);
   todoInputBar.value = "";
 });
 
-function addTodo(todoData) {
+function removeTodo(event) {
+  // console.log(
+  //   "clicked",
+  //   event.target.parentElement.parentElement.parentElement
+  // );
+  // event.target.parentElement.parentElement.parentElement.remove();
+
+  let deleteButtonPressed = event.target;
+  let indexToBeRemoved = Number(deleteButtonPressed.getAttribute("todo-idx"));
+  todos.splice(indexToBeRemoved, 1);
+  todoDataList.innerHTML = "";
+  todos.forEach((element, idx) => {
+    addTodo(element, idx + 1);
+  });
+}
+
+function addTodo(todoData, todoCount) {
   let rowDiv = document.createElement("div");
   let todoItem = document.createElement("div");
   let todoNumber = document.createElement("div");
@@ -68,10 +87,13 @@ function addTodo(todoData) {
     "justify-content-start",
     "gap-2"
   );
-  deleteButton.classList.add("btn", "btn-danger");
-  finishedButton.classList.add("btn", "btn-success");
+  deleteButton.classList.add("btn", "btn-danger", "delete-todo");
+  finishedButton.classList.add("btn", "btn-success", "finish-todo");
 
-  todoNumber.textContent = "1.";
+  deleteButton.setAttribute("todo-idx", todoCount - 1);
+  deleteButton.onclick = removeTodo;
+
+  todoNumber.textContent = `${todoCount}.`;
   todoDetail.textContent = todoData; //sets the todo  text sent from the input element
   todoStatus.textContent = "In progress";
   deleteButton.textContent = "Delete";
@@ -87,7 +109,7 @@ function addTodo(todoData) {
   rowDiv.appendChild(todoItem);
   rowDiv.appendChild(hr);
 
-  todoDataSection.appendChild(rowDiv);
+  todoDataList.appendChild(rowDiv);
 }
 
 //references for event and event listners
